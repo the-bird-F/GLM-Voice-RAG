@@ -33,56 +33,45 @@ GLM-4-Voice 由三个部分组成：
 
 我们利用 SONAR 的编码能力，实现跨模态信息的检索。
 
-### 🧪 Qwen-Omni (TODO)
+###  Qwen-Omni (TODO)🧪
 我们还预计引入 [Qwen2.5-Omni](https://github.com/QwenLM/Qwen2.5-Omni/blob/main/) 作为进一步多模态实验。
 
-安装：
-
-```bash
-pip install git + https://github.com/huggingface/transformers@d40f54fc2f1524458669048cb40a8d0286f5d1d2
-pip install accelerate
-pip install qwen-omni-utils
-```
 
 ## 🛠️ 环境配置
 1. 克隆项目与环境创建
 
-```shell
-cd GLM-Voice-RAG
-conda create -n glm-voice python=3.11 
-conda activate glm-voice 
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
-```
+    ```shell
+    cd GLM-Voice-RAG
+    pip install -e .[jupyter,linux]   # Linux 
+    # or
+    pip install -e .[jupyter,non_linux]  # Windows/macOS 
+    ```
 
-2. (可选) 下载相关模型 Checkpoints
-```shell
-export HF_ENDPOINT=https://hf-mirror.com/
+    另一个创建环境的选择：
+    ```shell
+    cd GLM-Voice-RAG
+    conda create -n glm-voice python=3.11 
+    conda activate glm-voice 
+    pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
+    ```
 
-sudo apt install git-lfs
-git lfs install
-git clone https://huggingface.co/THUDM/glm-4-voice-decoder
-# git clone https://hf-mirror.com/THUDM/glm-4-voice-decoder
+    注：请确保安装了 sonar-space==0.3.0rc1 版本，参考官方安装文档[here](https://github.com/facebookresearch/large_concept_model?tab=readme-ov-file#installing)
+    ```shell
+    sudo apt install libsndfile1 
+    conda install -c conda-forge libsndfile
+    ```
 
-git clone https://huggingface.co/maidalun1020/bce-embedding-base_v1
-git clone https://huggingface.co/intfloat/multilingual-e5-large
-git clone https://huggingface.co/openai/whisper-large-v3
-```
 
-3. 安装RAG相关工具（LangChain）
-```shell
-pip install langchain langchain_openai langchain_huggingface langchain_chroma
+2. 需要手动下载相关模型 Checkpoints
+    ```shell
+    sudo apt install git-lfs
+    git lfs install
+    git clone https://huggingface.co/THUDM/glm-4-voice-decoder
 
-pip install rouge_score jiwer ipykernel
-```
-
-4. 安装 SONAR 嵌入器
-```shell
-sudo apt install libsndfile1 
-conda install -c conda-forge libsndfile
-pip install fairseq2 
-pip install sonar-space
-```
-请确保安装了 sonar-space==0.3.0rc1 版本，参考官方安装文档[here](https://github.com/facebookresearch/large_concept_model?tab=readme-ov-file#installing)
+    # 镜像
+    # export HF_ENDPOINT=https://hf-mirror.com/
+    # git clone https://hf-mirror.com/THUDM/glm-4-voice-decoder
+    ```
 
 
 ## 📚 数据集
@@ -105,16 +94,19 @@ git clone https://huggingface.co/datasets/the-bird-F/HotpotQA_RGBzh_speech
 针对不同的数据集，我们提供了不同的运行脚本，在此可以选择运行 E2E RAG 或 ASR RAG：
 
 ```shell
+# simple (Your data)
+python examples/glm_voice_simple.py --rag e2e
+
 # HotpotQA
-python glm_voice_hotpot.py --rag e2e
+python examples/glm_voice_hotpot.py --rag e2e
 
 # RGB
-python glm_voice_rgb.py --rag e2e
+python examples/glm_voice_rgb.py --rag e2e
 ```
 
 另外，我们还提供了双轮生成的检索增强策略，可运行一下脚本：
 ```shell
-python d_glm_voice_hotpot.py
+python examples/double_glm_voice_hotpot.py
 ```
 
 

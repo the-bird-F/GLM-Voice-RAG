@@ -152,8 +152,8 @@ def un_main(args, flag_idx = 0):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-path", type=str, default="../GLM-Voice-RAG-dianxin/hotpot/hotpot_dev_distractor_v1.json") # hotpotQA path
-    parser.add_argument("--input-path", type=str, default="../GLM-Voice-RAG-dianxin/speech_data/hotpot_dev_distractor_v1/en-US-JennyNeural") # speech_data path
+    parser.add_argument("--data-path", type=str, default="./hotpot/hotpot_dev_distractor_v1.json") # hotpotQA path
+    parser.add_argument("--input-path", type=str, default="./speech_data/hotpot_dev_distractor_v1/en-US-JennyNeural") # speech_data path
 
     parser.add_argument("--mode", type=str, choices=["double", "uncertainty"], default="uncertainty")
     parser.add_argument("--rag", type=str, choices=["multi", "bce", "openai"], default="multi")
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--top_p", type=float, default=0.8)
     parser.add_argument("--max_new_token", type=int, default=2000)
-    parser.add_argument("--flow-path", type=str, default="../GLM-Voice-RAG-dianxin/glm-4-voice-decoder")
+    parser.add_argument("--flow-path", type=str, default="./glm-4-voice-decoder")
     parser.add_argument("--model-path", type=str, default="THUDM/glm-4-voice-9b")
     parser.add_argument("--tokenizer-path", type=str, default="THUDM/glm-4-voice-tokenizer")
     parser.add_argument("--device", type=str, default="cuda") 

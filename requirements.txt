@@ -30,3 +30,12 @@ WeTextProcessing==1.0.3
 torch==2.6.0
 torchaudio==2.6.0
 accelerate==1.0.1
+langchain 
+langchain_openai 
+langchain_huggingface 
+langchain_chroma
+rouge_score 
+jiwer 
+ipykernel
+fairseq2
+sonar-space

@@ -3,6 +3,10 @@ import numpy as np
 import re
 import os
 import sys
+
+sys.path.insert(0, "./cosyvoice")
+sys.path.insert(0, "./third_party/Matcha-TTS")
+
 import uuid
 from hyperpyyaml import load_hyperpyyaml
 from collections import defaultdict
@@ -11,10 +15,6 @@ import soundfile as sf
 
 from speech_tokenizer.modeling_whisper import WhisperVQEncoder
 from speech_tokenizer.utils import extract_speech_token
-
-sys.path.insert(0, "./cosyvoice")
-sys.path.insert(0, "./third_party/Matcha-TTS")
-
 
 
 class Fake():

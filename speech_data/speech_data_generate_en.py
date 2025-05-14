@@ -3,12 +3,12 @@ import os
 from tqdm import tqdm
 import azure.cognitiveservices.speech as speechsdk
 
-# 读取 HotpotQA 数据集
+# read HotpotQA dataset
 data_path = "hotpot/hotpot_dev_distractor_v1.json"
 with open(data_path, "r", encoding="utf-8") as f:
     dataset = json.load(f)
 
-# 数据格式
+# data files
 # ==========================
 # speech_data
 # |_ which dataset
@@ -45,9 +45,9 @@ with tqdm(dataset, desc=f"Epoch {len(dataset)}") as pbar:
         stream = speechsdk.AudioDataStream(speech_synthesis_result)
         stream.save_to_wav_file(f"{speech_path}/{question_id}/question.wav")
         
-        # speech_synthesis_result = speech_synthesizer.speak_text_async(entry["answer"]).get()
-        # stream = speechsdk.AudioDataStream(speech_synthesis_result)
-        # stream.save_to_wav_file(f"{speech_path}/{question_id}/answer.wav")
+        speech_synthesis_result = speech_synthesizer.speak_text_async(entry["answer"]).get()
+        stream = speechsdk.AudioDataStream(speech_synthesis_result)
+        stream.save_to_wav_file(f"{speech_path}/{question_id}/answer.wav")
         
         # for idx in range(10):
         #     speech_synthesis_result = speech_synthesizer.speak_text_async(''.join(entry['context'][idx][1])).get()

@@ -34,56 +34,33 @@ GLM-4-Voice consists of three main components:
 
 We leverage SONAR's encoding capabilities to enable effective cross-modal retrieval in our E2E-RAG system.
 
-### 🧪 Qwen-Omni (TODO)
+### Qwen-Omni (TODO) 🧪
 We also plan to integrate [Qwen2.5-Omni](https://github.com/QwenLM/Qwen2.5-Omni/blob/main/) as part of future experiments on multimodal capabilities.
 
-Installation instructions
-```bash
-pip install git + https://github.com/huggingface/transformers@d40f54fc2f1524458669048cb40a8d0286f5d1d2
-pip install accelerate
-pip install qwen-omni-utils
-```
 
 ## 🛠️ Environment Setup
 1. Clone the Repository and Create Environmen
 
-```shell
-cd GLM-Voice-RAG
-conda create -n glm-voice python=3.11 
-conda activate glm-voice 
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
-```
+    ```shell
+    cd GLM-Voice-RAG
+    pip install -e .[jupyter,linux]   # Linux 
+    # or
+    pip install -e .[jupyter,non_linux]  # Windows/macOS 
+    ```
+    Another choice:
+    ```bash
+    conda create -n glm-voice python==3.11
+    conda activate glm-voice 
+    pip install -r requirements.txt
+    ```
 
-2. (optional) Download relatied Checkpoints
-```shell
-export HF_ENDPOINT=https://hf-mirror.com/
 
-sudo apt install git-lfs
-git lfs install
-git clone https://huggingface.co/THUDM/glm-4-voice-decoder
-# git clone https://hf-mirror.com/THUDM/glm-4-voice-decoder
-
-git clone https://huggingface.co/maidalun1020/bce-embedding-base_v1
-git clone https://huggingface.co/intfloat/multilingual-e5-large
-git clone https://huggingface.co/openai/whisper-large-v3
-```
-
-3. Install RAG tools（LangChain）
-```shell
-pip install langchain langchain_openai langchain_huggingface langchain_chroma
-
-pip install rouge_score jiwer ipykernel
-```
-
-4. Install SONAR 
-```shell
-sudo apt install libsndfile1 
-conda install -c conda-forge libsndfile
-pip install fairseq2 
-pip install sonar-space
-```
-Please make sure that you have 0.3.0rc1 installed as described [here](https://github.com/facebookresearch/large_concept_model?tab=readme-ov-file#installing).
-
+2. Download relatied Checkpoints
+    ```shell
+    sudo apt install git-lfs
+    git lfs install
+    git clone https://huggingface.co/THUDM/glm-4-voice-decoder
+    ```
 
 ## 📚 Dataset
 ### HotpotQA
@@ -105,16 +82,19 @@ git clone https://huggingface.co/datasets/the-bird-F/HotpotQA_RGBzh_speech
 We provide different running programs for different datasets, where we can choose to run E2E RAG or ASR RAG:
 
 ```shell
+# simple (Your data)
+python examples/glm_voice_simple.py --rag e2e
+
 # HotpotQA
-python glm_voice_hotpot.py --rag e2e
+python examples/glm_voice_hotpot.py --rag e2e
 
 # RGB
-python glm_voice_rgb.py --rag e2e
+python examples/glm_voice_rgb.py --rag e2e
 ```
 
 Additionally, we provide a retrieval augmentation strategy generated in two rounds, which can be run with the following command:
 ```shell
-python d_glm_voice_hotpot.py
+python examples/double_glm_voice_hotpot.py
 ```
 
 ## 🙏 Acknowledgements

@@ -3,7 +3,7 @@ import os
 from tqdm import tqdm
 import azure.cognitiveservices.speech as speechsdk
 
-# 读取 HotpotQA 数据集
+# read RGB zh dataset
 data_path = "./RGB/data/zh.json"
 dataset = []
 with open(data_path, "r", encoding="utf-8") as f:
@@ -14,7 +14,7 @@ with open(data_path, "r", encoding="utf-8") as f:
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
 
-# 数据格式
+# data files
 # ==========================
 # speech_data
 # |_ which dataset

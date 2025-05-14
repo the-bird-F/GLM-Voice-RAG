@@ -1,0 +1,76 @@
+[project]
+name = "GLM-Voice-RAG"
+version = "0.1.0"
+description = "A speech RAG for GLM-4-Voice"
+readme  = "README.md"
+authors = [
+  { name = "Pengchao Feng", email = "the.bird@sjtu.edu.cn" }
+]
+requires-python = ">=3.11"
+
+dependencies = [
+  "conformer==0.3.2",
+  "diffusers==0.27.2",
+  "fastapi==0.115.3",
+  "fastapi-cli==0.0.4",
+  "gdown==5.1.0",
+  "huggingface_hub==0.25.2",
+  "hydra-core==1.3.2",
+  "HyperPyYAML==1.2.2",
+  "inflect==7.3.1",
+  "librosa==0.10.2",
+  "lightning==2.2.4",
+  "matplotlib==3.7.5",
+  "modelscope==1.15.0",
+  "networkx==3.1",
+  "numpy==1.24.4",
+  "omegaconf==2.3.0",
+  "protobuf==4.25",
+  "pydantic==2.7.0",
+  "rich==13.7.1",
+  "requests==2.32.3",
+  "safetensors==0.4.5",
+  "soundfile==0.12.1",
+  "transformers==4.44.1",
+  "uvicorn==0.32.0",
+  "wget==3.2",
+  "WeTextProcessing==1.0.3",
+  "torch==2.6.0",
+  "torchaudio==2.6.0",
+  "accelerate==1.0.1",
+  "fairseq2==0.4.5",
+  "sonar-space",
+  "langchain",
+  "langchain_openai",
+  "langchain_huggingface",
+  "langchain_chroma",
+  "rouge_score",
+  "jiwer",
+  "ipykernel"
+]
+
+[project.optional-dependencies]
+linux = [
+  "deepspeed==0.14.2",
+  "onnxruntime-gpu==1.16.0"
+]
+non_linux = [
+  "onnxruntime==1.16.0"
+]
+jupyter = [
+  "notebook",
+  "jupyterlab",
+  "ipywidgets",
+  "matplotlib"
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
