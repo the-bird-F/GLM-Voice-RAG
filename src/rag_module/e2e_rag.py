@@ -6,7 +6,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 
-from sonar_rag.sonar import SONAR_Wav_Embeddings
+from rag_module.sonar import SONAR_Wav_Embeddings
 from spoken_chatbot.model import Whisper
 
 
@@ -44,12 +44,25 @@ class RAG():
     def _init_persist_directory(self):
         return f"answer_data/db_{self.args.rag}_oracle"
     
-    def build(self, idx, documents, search_type = "similarity", search_kwargs = {"k": 4}, reset = True):
-        # 这里要确定一个通用的documents的格式
-        # documents = [["label", ["sentence1", "sentence2",...]],...]
+    def build(self, idx, documents, metadatas = None, search_type = "similarity", search_kwargs = {"k": 4}, reset = True):
+        """
+        Build the RAG database with the given documents.
+        Args:
+            idx (int): The index of the database.
+            documents (list[str]): The documents to be added to the database.
+            metadatas (list[str]): The metadata for the documents. Default is None.
+            search_type (str): The type of search to be used. Default is "similarity".
+            search_kwargs (dict): Additional arguments for the search. Default is {"k": 4}.
+            reset (bool): Whether to reset the database. Default is True.
+        """
         docs = []
-        for sen in documents:
-            docs += self.text_splitter.create_documents([" ".join(sen[1])], metadatas=[{"label": sen[0]}])
+        if metadatas is not None:
+            assert len(documents) == len(metadatas), "documents and metadatas must have the same length"
+        else:
+            metadatas = [""] * len(documents)
+            
+        for d, doc in enumerate(documents):
+            docs += self.text_splitter.create_documents([doc], metadatas=[{"label": metadatas[d]}])
 
         db_path = os.path.join(self.persist_directory, f'q{idx}')
 

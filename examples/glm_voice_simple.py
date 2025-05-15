@@ -6,7 +6,6 @@ import json
 import torch
 import argparse
 from tqdm import tqdm 
-from langchain import hub
 
 from rag_module.e2e_rag import RAG, ASR_RAG, E2E_RAG
 from rag_module.rag_tools import Recorder
@@ -20,22 +19,24 @@ def main(args):
     spoken_chatbot = GLM_Voice(args)
     if args.oracle:
         result_dir = f"answer_data/simple_{args.rag}_oracle"
+        info_path = f"answer_data/simple_info_{args.rag}_asr.json"
         with open(args.data_path, 'r', encoding='utf-8') as f:
             query = f.read()
         rag = RAG(args)
     elif args.rag == 'e2e':
         result_dir = f"answer_data/simple_{args.rag}"
+        info_path = f"answer_data/simple_info_{args.rag}_asr.json"
         rag = E2E_RAG(args)
     else:
         result_dir = f"answer_data/simple_{args.rag}_asr"
+        info_path = f"answer_data/simple_info_{args.rag}_asr.json"
         rag = ASR_RAG(args)    
     
-    prompt_tool = hub.pull("rlm/rag-prompt")
     recorder = Recorder()
 
     try:         
         ######### Indexing #########
-        rag.build(0, content, search_type = "similarity", search_kwargs = {"k": 4}, reset = True)
+        rag.build(-1, [content], search_type = "similarity", search_kwargs = {"k": 4}, reset = True)
         
         ######### prepare query #########
         recorder.respond_timer.start()
@@ -54,28 +55,30 @@ def main(args):
             recorder.retrieval_timer.stop()
                                 
         ######### generation #########
-        prompt_input = prompt_tool.invoke({'context': retrieval_context, 'question': question_audio}) 
-        user_input = prompt_input.to_string().strip()
+        prompt_input = f"""Answer the question based on the following context:
+{retrieval_context}
+Question: {question_audio}"""
+        user_input = prompt_input.strip()
         system_prompt = "User will provide you with a speech instruction. Do it step by step. First, think about the instruction and respond in a interleaved manner, with 13 text token followed by 26 audio tokens. " 
         prompt = f"<|system|>\n{system_prompt}<|user|>\n{user_input}<|assistant|>streaming_transcription\n"
         
         spoken_chatbot.generate(prompt, args.temperature, output_file=f"{result_dir}")
         recorder.respond_timer.stop()
-        recorder.record_info(0, 0, retrieval_context)
+        recorder.record_info([content], "", retrieval_context)
 
             
     except Exception as e:
         print(f"Error processing {e}")
             
         
-    recorder.save(result_dir, extend=True)
+    recorder.save(info_path, extend=True)
 
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-path", type=str, default="./speech_data/simple/information.txt") # text information path
-    parser.add_argument("--input-path", type=str, default="./speech_data/simple/qestion.wav") # speech question(query) path
+    parser.add_argument("--input-path", type=str, default="./speech_data/simple/question.wav") # speech question(query) path
 
     parser.add_argument("--rag", type=str, choices=["e2e", "multi", "bce", "openai"], default="multi")
     parser.add_argument("--oracle", type=bool, default=False) 

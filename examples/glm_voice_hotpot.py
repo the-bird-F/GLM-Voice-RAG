@@ -41,7 +41,11 @@ def main(args, flag_idx = 0):
                         continue  
                     
                     ######### Indexing #########
-                    rag.build(idx, tmp_context[idx], search_type = "similarity", search_kwargs = {"k": 4}, reset = True)
+                    documents, metadatas = [], []
+                    for sen in tmp_context[idx]:
+                        documents.append(" ".join(sen[1]))  
+                        metadatas.append(sen[0])
+                    rag.build(idx, documents, metadatas, search_type = "similarity", search_kwargs = {"k": 4}, reset = True)
                     
                     ######### prepare query #########
                     recorder.respond_timer.start()
