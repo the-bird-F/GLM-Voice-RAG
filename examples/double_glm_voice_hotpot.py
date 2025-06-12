@@ -157,6 +157,9 @@ if __name__ == "__main__":
 
     parser.add_argument("--mode", type=str, choices=["double", "uncertainty"], default="uncertainty")
     parser.add_argument("--rag", type=str, choices=["multi", "bce", "openai"], default="multi")
+    parser.add_argument("--asr_model", type=str, choices=["MMS", "Whisper", "FasterWhisper"], default="MMS")
+    parser.add_argument("--asr_model_id", type=str)
+    parser.add_argument("--asr_device", type=str, default="cuda")
     
     parser.add_argument("--chunk-size", type=int, default=1000)
     parser.add_argument("--chunk-overlap", type=int, default=100)

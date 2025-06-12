@@ -26,15 +26,9 @@ E2E RAG for GLM-4-Voice: A Case Study
 
 ## ✨ 模型组件介绍
 
-### 🧠 GLM-4-Voice
+### GLM-4-Voice
 
-来自智谱 AI 的 GLM-4-Voice 是一款支持端到端语音输入与输出的大语言模型，具备以下能力：
-
-- ✅ 支持中英文语音理解与生成  
-- ⚡ 支持流式语音对话  
-- 🎭 可控制语音情感、语速、语调等属性  
-
-> ⚠️ 但由于缺乏外部知识库检索机制，GLM-4-Voice 在如 HotpotQA 等复杂问答任务中存在性能瓶颈。
+来自智谱 AI 的 GLM-4-Voice 是一款支持端到端语音输入与输出的大语言模型， 支持中英文语音理解与生成、流式语音对话、可控制语音情感、语速、语调等属性，但由于缺乏外部知识库检索机制，GLM-4-Voice 在如 HotpotQA 等复杂问答任务中存在性能瓶颈。
 
 #### 架构组成：
 
@@ -49,23 +43,35 @@ E2E RAG for GLM-4-Voice: A Case Study
 
 ---
 
-### 🌐 SONAR：多模态语音-文本嵌入器
+###  SONAR：多模态语音-文本嵌入器
 
 [SONAR](https://github.com/facebookresearch/SONAR) 是 Meta AI 提出的跨模态多语言嵌入工具，支持：
 
-- 🔄 多语言语音与文本嵌入  
-- 🎯 语音与文本共享同一嵌入空间  
-- 🔍 精准语义对齐与检索  
+- 多语言语音与文本嵌入  
+- 语音与文本共享同一嵌入空间  
+- 精准语义对齐与检索  
 
 在本项目中，SONAR 用于将语音输入映射至文本知识库空间，从而实现跨模态检索增强。
 
 ---
+
+### 可用的语音识别后端
+
+我们的系统支持多种语音识别（ASR）工具，通过命令行参数或配置文件轻松切换，可根据需求灵活权衡**识别精度**、**运行效率**与**多语言**能力。
+
+- Whisper ([openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3))
+- Faster-Whisper ([faster-whisper](https://huggingface.co/guillaumekln/faster-whisper))
+- MMS ([facebook/mms-1b-all](https://huggingface.co/facebook/mms-1b-all))
+
+---
+
 
 ### 🧪 Qwen-Omni（后续计划）
 
 我们计划后续支持 [Qwen2.5-Omni](https://github.com/QwenLM/Qwen2.5-Omni) 模型，扩展本系统在图像、视频等更多模态下的对话能力。
 
 ---
+
 ## 🛠️ 环境配置
 1. 克隆项目与环境创建
 

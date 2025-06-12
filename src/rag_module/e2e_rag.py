@@ -7,7 +7,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from rag_module.sonar import SONAR_Wav_Embeddings
-from spoken_chatbot.model import Whisper
+from spoken_chatbot.model import Whisper, FasterWhisper, MMS
 
 
 def format_docs(docs):
@@ -105,7 +105,14 @@ class E2E_RAG(RAG):
 class ASR_RAG(RAG):
     def __init__(self, args, lan = "en"):
         super().__init__(args, lan)
-        self.asr = Whisper(args)
+        if args.asr_model == "Whisper":
+            self.asr = Whisper(args)
+        elif args.asr_model == "FasterWhisper":
+            self.asr = FasterWhisper(args)
+        elif args.asr_model == "MMS":
+            self.asr = MMS(args)
+        else:
+            raise ValueError(f"Unsupported ASR model: {args.asr_model}")
     
     def _init_persist_directory(self):
         return f"answer_data/db_{self.args.rag}_asr"

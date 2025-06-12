@@ -81,6 +81,9 @@ if __name__ == "__main__":
     parser.add_argument("--input-path", type=str, default="./speech_data/simple/question.wav") # speech question(query) path
 
     parser.add_argument("--rag", type=str, choices=["e2e", "multi", "bce", "openai"], default="multi")
+    parser.add_argument("--asr_model", type=str, choices=["MMS", "Whisper", "FasterWhisper"], default="MMS")
+    parser.add_argument("--asr_model_id", type=str)
+    parser.add_argument("--asr_device", type=str, default="cuda")
     parser.add_argument("--oracle", type=bool, default=False) 
     parser.add_argument("--chunk-size", type=int, default=1000)
     parser.add_argument("--chunk-overlap", type=int, default=100)

@@ -37,5 +37,6 @@ langchain_chroma
 rouge_score 
 jiwer 
 ipykernel
+faster_whisper
 fairseq2
 sonar-space

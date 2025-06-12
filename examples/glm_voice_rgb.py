@@ -205,6 +205,9 @@ if __name__ == '__main__':
     parser.add_argument('--modelname', type=str, default='GLM-Voice',help='model name')
     parser.add_argument('--rag', type=str, default='bce',help='rag name',choices=['None','multi','bce','openai','sonar'])
     parser.add_argument('--asr', type=bool, default=False, help='use asr')
+    parser.add_argument("--asr_model", type=str, choices=["MMS", "Whisper", "FasterWhisper"], default="MMS")
+    parser.add_argument("--asr_model_id", type=str)
+    parser.add_argument("--asr_device", type=str, default="cuda")
     
     parser.add_argument('--noise_rate', type=float, default=0.8)      ### [0, 0.2, 0.4, 0.6, 0.8]
     parser.add_argument('--correct_rate', type=float, default=0.0,help='rate of correct passages')

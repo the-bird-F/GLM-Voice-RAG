@@ -10,8 +10,9 @@ sys.path.insert(0, "./third_party/Matcha-TTS")
 import uuid
 from hyperpyyaml import load_hyperpyyaml
 from collections import defaultdict
-from transformers import AutoTokenizer, WhisperFeatureExtractor, AutoModel, AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+from transformers import AutoTokenizer, WhisperFeatureExtractor, AutoModel, AutoModelForSpeechSeq2Seq, AutoProcessor, WhisperProcessor, WhisperForConditionalGeneration,  Wav2Vec2ForCTC
 import soundfile as sf 
+from faster_whisper import WhisperModel
 
 from speech_tokenizer.modeling_whisper import WhisperVQEncoder
 from speech_tokenizer.utils import extract_speech_token
@@ -226,34 +227,78 @@ class GLM_Voice():
     
     
 
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
-
-
-class Whisper():
+class Whisper:
     def __init__(self, args):
-        model_id = "openai/whisper-large-v3"
-        asr_torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-        self.asr_model = AutoModelForSpeechSeq2Seq.from_pretrained(model_id, torch_dtype=asr_torch_dtype, low_cpu_mem_usage=True, use_safetensors=True).to(args.device)
-        self.asr_processor = AutoProcessor.from_pretrained(model_id)
-        self.asr_pipe = pipeline(
-            "automatic-speech-recognition",
-            model=self.asr_model,
-            tokenizer=self.asr_processor.tokenizer,
-            feature_extractor=self.asr_processor.feature_extractor,
-            torch_dtype=asr_torch_dtype,
-            device=args.device,
-        )
-        
-    def audio_to_text(self, file_path, lang = "en", target_sampling_rate=16000):
-        audio_array, sampling_rate = sf.read(file_path, dtype='float32')
-        if sampling_rate != target_sampling_rate:
-            audio_array = torchaudio.functional.resample(
-                torch.tensor(audio_array), sampling_rate, target_sampling_rate
-            ).numpy()
-        question_wav = {"array": audio_array, "sampling_rate": target_sampling_rate}
-        forced_decoder_ids = self.asr_processor.get_decoder_prompt_ids(language=lang, task="transcribe")
-        result = self.asr_pipe(question_wav, generate_kwargs={"language": lang, "forced_decoder_ids": forced_decoder_ids})
-        return result["text"]
+        model_id = args.asr_model_id if hasattr(args, "asr_model_id") else "openai/whisper-large-v3"
+        self.device = args.asr_device if hasattr(args, "asr_device") else ("cuda" if torch.cuda.is_available() else "cpu")
+        self.processor = WhisperProcessor.from_pretrained(model_id)
+        self.model = WhisperForConditionalGeneration.from_pretrained(model_id).to(self.device)
+
+    def audio_to_text(self, file_path, lang=None, target_sampling_rate=16000):
+        waveform, sr = sf.read(file_path, always_2d=True)
+        waveform = torch.from_numpy(waveform.T).float() 
+        audio = waveform[0]  
+        if sr != target_sampling_rate:
+            resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=target_sampling_rate)
+            audio = resampler(audio)
+        input_features = self.processor(
+            audio.numpy(), sampling_rate=target_sampling_rate, return_tensors="pt"
+        ).input_features.to(self.device)
+
+        if lang:
+            forced_decoder_ids = self.processor.get_decoder_prompt_ids(language=lang, task="transcribe")
+        else:
+            forced_decoder_ids = None  
+
+        with torch.no_grad():
+            generated_ids = self.model.generate(input_features, forced_decoder_ids=forced_decoder_ids)
+
+        transcription = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        return transcription
+    
+
+class FasterWhisper:
+    def __init__(self, args):
+        model_id = args.asr_model_id if hasattr(args, "asr_model_id") else "large-v3" 
+        self.device = args.asr_device if hasattr(args, "asr_device") else ("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = WhisperModel(model_id, device=self.device)
+
+    def audio_to_text(self, file_path, lang=None, target_sampling_rate=16000):
+        waveform, sr = sf.read(file_path, always_2d=True)  
+        waveform = torch.from_numpy(waveform.T).float()  
+        audio = waveform[0]
+        if sr != target_sampling_rate:
+            resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=target_sampling_rate)
+            audio = resampler(audio)
+        audio_np = audio.numpy()
+        segments, _ = self.model.transcribe(audio_np, language=lang, beam_size=5)
+        transcription = "".join(segment.text for segment in segments)
+        return transcription
+    
+    
+class MMS:
+    def __init__(self, args):
+        model_id= args.asr_model_id if hasattr(args, "asr_model_id") else "facebook/mms-1b-all"
+        self.device = args.asr_device if hasattr(args, "asr_device") else ("cuda" if torch.cuda.is_available() else "cpu")
+        self.processor = AutoProcessor.from_pretrained(model_id)
+        self.model = Wav2Vec2ForCTC.from_pretrained(model_id).to(self.device)
+    
+    def audio_to_text(self, file_path, lang = None, target_sampling_rate=16000):
+        waveform, sr = sf.read(file_path, always_2d=True)  # shape: (samples, channels)
+        waveform = torch.from_numpy(waveform.T).float()
+        if sr != target_sampling_rate:
+            resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=target_sampling_rate)
+            waveform = resampler(waveform)
+        en_sample = waveform[0]
+        inputs = self.processor(en_sample, sampling_rate=target_sampling_rate, return_tensors="pt", padding=True)
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        with torch.no_grad():
+            logits = self.model(**inputs).logits
+
+        predicted_ids = torch.argmax(logits, dim=-1)[0]
+        transcription = self.processor.decode(predicted_ids)
+        return transcription
+
 
 
 '''

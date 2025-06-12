@@ -13,14 +13,12 @@ Implementation for the paper <em>"Enhancing Speech-to-Speech Dialogue Modeling w
 <br /> -->
 </p>
 
-<p align="center">
-  <a href="https://github.com/your-org/GLM-Voice-RAG">
-    <img alt="Github Code" src="https://img.shields.io/badge/GitHub-Code-blue?logo=github">
-  </a>
-  <a href="https://arxiv.org/abs/2505.00028">
-    <img alt="arXiv Paper" src="https://img.shields.io/badge/arXiv-2505.00028-red?logo=arxiv">
-  </a>
-</p>
+<div align="center">
+    <a href="https://github.com/your-org/GLM-Voice-RAG/" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-Code-blue?logo=github" alt="Github Code"></a>
+    <a href="https://arxiv.org/abs/2505.00028" target="_blank">
+    <img src="https://img.shields.io/badge/arXiv-2505.00028-red?logo=arxiv" alt="arXiv Paper"></a>
+</div>
 
 <p align="center">
     <a href="./README_zh.md">👉 中文版说明</a>
@@ -38,15 +36,9 @@ An **end-to-end retrieval-augmented generation (E2E RAG)** speech dialogue syste
 
 ## ✨ Overview of the Base Models
 
-### 🔈 GLM-4-Voice
+### GLM-4-Voice
 
-Developed by [Zhipu AI](https://github.com/THUDM), GLM-4-Voice supports:
-
-- ✅ Chinese & English understanding and generation  
-- ⚡ Real-time streaming dialogue  
-- 🎭 Customizable tone, emotion, and speech rate  
-
-However, **GLM-4-Voice lacks knowledge retrieval**, limiting its performance on complex QA tasks (e.g., HotpotQA).
+Developed by [Zhipu AI](https://github.com/THUDM), GLM-4-Voice supports: Chinese & English understanding and generation, Real-time streaming dialogue, Customizable tone, emotion, and speech rate. However, GLM-4-Voice lacks knowledge retrieval, limiting its performance on complex QA tasks.
 
 **Architecture Highlights**:
 
@@ -56,23 +48,36 @@ However, **GLM-4-Voice lacks knowledge retrieval**, limiting its performance on 
 
 ---
 
-### 🔍 SONAR: Cross-Modal Embedding
+### SONAR: Cross-Modal Embedding
 
 [SONAR](https://github.com/facebookresearch/SONAR) by Meta supports:
 
-- 🌐 Multilingual speech/text input  
-- 🔄 Speech-text joint embedding in the same space  
-- 🎯 Fine-grained retrieval and alignment  
+- Multilingual speech/text input  
+- Speech-text joint embedding in the same space  
+- Fine-grained retrieval and alignment  
 
 Used in this project for cross-modal **retrieval-augmented generation (RAG)**.
 
 ---
+
+### Supported ASR Backends 
+
+Our system supports multiple ASR (Automatic Speech Recognition) backends, which can be switched via command-line arguments, to flexibly balance **accuracy**, **efficiency**, and **language coverage**.
+
+- Whisper ([openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3))
+- Faster-Whisper ([faster-whisper](https://huggingface.co/guillaumekln/faster-whisper))
+- MMS ([facebook/mms-1b-all](https://huggingface.co/facebook/mms-1b-all))
+
+---
+
+
 
 ### 🧪 Qwen-Omni (Planned)
 
 We plan to explore [Qwen2.5-Omni](https://github.com/QwenLM/Qwen2.5-Omni) for future **multimodal experiments**.
 
 ---
+
 ## 🛠️ Environment Setup
 1. Clone the Repository and Create Environmen
 
