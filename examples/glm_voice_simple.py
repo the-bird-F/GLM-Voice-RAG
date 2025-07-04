@@ -80,8 +80,8 @@ if __name__ == "__main__":
     parser.add_argument("--data-path", type=str, default="./speech_data/simple/information.txt") # text information path
     parser.add_argument("--input-path", type=str, default="./speech_data/simple/question.wav") # speech question(query) path
 
-    parser.add_argument("--rag", type=str, choices=["e2e", "multi", "bce", "openai"], default="multi")
-    parser.add_argument("--asr_model", type=str, choices=["MMS", "Whisper", "FasterWhisper"], default="MMS")
+    parser.add_argument("--rag", type=str, choices=["e2e", "multi", "bce", "openai", "sonar"], default="multi")
+    parser.add_argument("--asr_model", type=str, choices=["MMS", "Whisper", "FasterWhisper", "Wav2Vec2"], default="MMS")
     parser.add_argument("--asr_model_id", type=str)
     parser.add_argument("--asr_device", type=str, default="cuda")
     parser.add_argument("--oracle", type=bool, default=False) 

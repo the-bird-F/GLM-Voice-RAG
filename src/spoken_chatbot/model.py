@@ -10,7 +10,7 @@ sys.path.insert(0, "./third_party/Matcha-TTS")
 import uuid
 from hyperpyyaml import load_hyperpyyaml
 from collections import defaultdict
-from transformers import AutoTokenizer, WhisperFeatureExtractor, AutoModel, AutoModelForSpeechSeq2Seq, AutoProcessor, WhisperProcessor, WhisperForConditionalGeneration,  Wav2Vec2ForCTC
+from transformers import AutoTokenizer, WhisperFeatureExtractor, AutoModel, AutoModelForSpeechSeq2Seq, AutoProcessor, WhisperProcessor, WhisperForConditionalGeneration,  Wav2Vec2ForCTC, Wav2Vec2Processor
 import soundfile as sf 
 from faster_whisper import WhisperModel
 
@@ -225,7 +225,6 @@ class GLM_Voice():
         
         return complete_text
     
-    
 
 class Whisper:
     def __init__(self, args):
@@ -299,6 +298,29 @@ class MMS:
         transcription = self.processor.decode(predicted_ids)
         return transcription
 
+
+class Wav2Vec2:
+    def __init__(self, args):
+        model_id = getattr(args, "asr_model_id", "facebook/wav2vec2-base-960h")
+        self.device = getattr(args, "asr_device", "cuda" if torch.cuda.is_available() else "cpu")
+        self.processor = Wav2Vec2Processor.from_pretrained(model_id)
+        self.model = Wav2Vec2ForCTC.from_pretrained(model_id).to(self.device)
+
+    def audio_to_text(self, file_path: str, target_sampling_rate: int = 16000) -> str:
+        waveform, sample_rate = torchaudio.load(file_path)
+        if sample_rate != target_sampling_rate:
+            resampler = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=target_sampling_rate)
+            waveform = resampler(waveform)
+
+        inputs = self.processor(waveform.squeeze(), sampling_rate=target_sampling_rate,
+                                return_tensors="pt", padding=True)
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        with torch.no_grad():
+            logits = self.model(**inputs).logits
+        predicted_ids = torch.argmax(logits, dim=-1)
+        transcription = self.processor.batch_decode(predicted_ids)[0]
+
+        return transcription
 
 
 '''

@@ -17,9 +17,8 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings 
 
-from rag_module.sonar import SONAR_Wav_Embeddings
+from rag_module.sonar import SONAR_Wav_Embeddings, SONAR_Embeddings, CLAP_Embeddings
 from rag_module.rag_tools import Recorder
-from rag_module.e2e_rag import RAG, ASR_RAG, E2E_RAG
 from spoken_chatbot.model import GLM_Voice, Fake, Whisper
 
 def retrival_imformation(con_label, recontent):
@@ -136,6 +135,9 @@ def predict(input_path, speech_query, query, ground_truth, docs, model, system, 
             if rag == 'sonar':
                 query = torchaudio.load(input_path)
                 embedding = SONAR_Wav_Embeddings(lan = 'zh')
+            elif rag == 'clap':
+                query = torchaudio.load(input_path)
+                embedding = CLAP_Embeddings(lan = 'zh')
             elif rag == 'multi':
                 embedding = HuggingFaceEmbeddings(
                     model_name="intfloat/multilingual-e5-large",
@@ -152,13 +154,17 @@ def predict(input_path, speech_query, query, ground_truth, docs, model, system, 
                 api_key =  os.environ.get("OPENAI_API_KEY")
                 api_base = os.environ.get("OPENAI_API_BASE")
                 embedding = OpenAIEmbeddings(openai_api_key=api_key, openai_api_base=api_base)
+            elif rag == 'sonar_text':
+                embedding = SONAR_Embeddings(lan = 'zh')
                 
             # Retrieve model  
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100, separators=["\n", "。", "！", "？", "；", "，"])
-            persist_directory = f'./answer_data/RGB_db_{rag}/'
+            persist_directory = './answer_data/RGB_db_{}/{}'.format(
+                rag, input_path.split('/')[-2]
+            )
             docs_chunk = text_splitter.create_documents(docs)
-            vectorstore = Chroma.from_documents(documents=docs_chunk, embedding=embedding,  persist_directory=os.path.join(persist_directory,query[:16]))
-            retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 2})
+            vectorstore = Chroma.from_documents(documents=docs_chunk, embedding=embedding,  persist_directory=persist_directory)
+            retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 4})
             
                 
                 
@@ -203,9 +209,9 @@ if __name__ == '__main__':
     parser.add_argument('--input-dir', type=str, default='speech_data/RGB_zh/zh-CN-XiaoxiaoNeural', help='speech input directory')
     
     parser.add_argument('--modelname', type=str, default='GLM-Voice',help='model name')
-    parser.add_argument('--rag', type=str, default='bce',help='rag name',choices=['None','multi','bce','openai','sonar'])
+    parser.add_argument('--rag', type=str, default='bce',help='rag name',choices=['None','multi','bce','openai','sonar', 'sonar_text', 'clap'])
     parser.add_argument('--asr', type=bool, default=False, help='use asr')
-    parser.add_argument("--asr_model", type=str, choices=["MMS", "Whisper", "FasterWhisper"], default="MMS")
+    parser.add_argument("--asr_model", type=str, choices=["MMS", "Whisper", "FasterWhisper", "Wav2Vec2"], default="MMS")
     parser.add_argument("--asr_model_id", type=str)
     parser.add_argument("--asr_device", type=str, default="cuda")
     

@@ -5,12 +5,6 @@ E2E RAG for GLM-4-Voice: A Case Study
 <p align="center">
 Implementation for the paper <em>"Enhancing Speech-to-Speech Dialogue Modeling with End-to-End Retrieval-Augmented Generation"</em>.
 <br />
-<!-- <a href="https://github.com/your-github"><strong>Your Name</strong></a>
-&nbsp;
-<a href="https://github.com/your-collaborator"><strong>Collaborator Name</strong></a>
-&nbsp;
-<a href="https://github.com/your-org"><strong>Your Organization</strong></a>
-<br /> -->
 </p>
 
 <div align="center">
@@ -25,7 +19,7 @@ Implementation for the paper <em>"Enhancing Speech-to-Speech Dialogue Modeling w
 </p>
 
 <p align="center">
-  <img src="./resources/e2erag.svg" alt="Model Architecture" width="600"/>
+  <img src="./resources/e2erag.svg" alt="Model Architecture" width="666"/>
 </p>
 
 
@@ -59,6 +53,11 @@ Developed by [Zhipu AI](https://github.com/THUDM), GLM-4-Voice supports: Chinese
 Used in this project for cross-modal **retrieval-augmented generation (RAG)**.
 
 ---
+### Additional: Other speech-to-text embeddingers 
+
+[CLAP](https://huggingface.co/laion/clap-htsat-unfused) is a multimodal contrastive learning model for aligning audio and text by mapping them into a shared semantic space, by LAION.
+
+---
 
 ### Supported ASR Backends 
 
@@ -67,6 +66,7 @@ Our system supports multiple ASR (Automatic Speech Recognition) backends, which 
 - Whisper ([openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3))
 - Faster-Whisper ([faster-whisper](https://huggingface.co/guillaumekln/faster-whisper))
 - MMS ([facebook/mms-1b-all](https://huggingface.co/facebook/mms-1b-all))
+- Wav2Vec2 ([facebook/wav2vec2-base-960h](https://huggingface.co/facebook/wav2vec2-base-960h))
 
 ---
 
@@ -103,20 +103,28 @@ We plan to explore [Qwen2.5-Omni](https://github.com/QwenLM/Qwen2.5-Omni) for fu
     ```
 
 ## 📚 Dataset
-### HotpotQA
+### HotpotQA & Speech
 ```shell
 git clone https://github.com/hotpotqa/hotpot.git
-```
-
-### RGB
-```shell
-git clone https://github.com/chen700564/RGB.git
-```
-
-### Ours speech dataset
-```shell
 git clone https://huggingface.co/datasets/the-bird-F/HotpotQA_RGBzh_speech
 ```
+
+### RGB & Speech
+```shell
+git clone https://github.com/chen700564/RGB.git
+git clone https://huggingface.co/datasets/the-bird-F/HotpotQA_RGBzh_speech
+```
+
+### Spoken-SQuAD
+```shell
+git clone https://github.com/Chia-Hsuan-Lee/Spoken-SQuAD
+```
+
+### VoxPopuli-QA
+```shell
+git clone https://github.com/facebookresearch/voxpopuli
+```
+
 
 ## 🚀 Quick Start
 We provide different running programs for different datasets, where we can choose to run E2E RAG or ASR RAG:

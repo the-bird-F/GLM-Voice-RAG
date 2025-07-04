@@ -6,8 +6,8 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 
-from rag_module.sonar import SONAR_Wav_Embeddings
-from spoken_chatbot.model import Whisper, FasterWhisper, MMS
+from rag_module.sonar import SONAR_Wav_Embeddings, SONAR_Embeddings, CLAP_Embeddings
+from spoken_chatbot.model import Whisper, FasterWhisper, MMS, Wav2Vec2
 
 
 def format_docs(docs):
@@ -25,21 +25,28 @@ class RAG():
         if self.args.rag == 'multi':
             return HuggingFaceEmbeddings(
                 model_name="intfloat/multilingual-e5-large",
-                model_kwargs={'device': 'cuda'},
+                model_kwargs={'device': self.args.device},
                 encode_kwargs={'batch_size': 16, 'normalize_embeddings': False}
             )
         elif self.args.rag == 'bce':
             return HuggingFaceEmbeddings(
                 model_name="maidalun1020/bce-embedding-base_v1",
-                model_kwargs={'device': 'cuda'},
+                model_kwargs={'device': self.args.device},
                 encode_kwargs={'batch_size': 16, 'normalize_embeddings': False}
             )
         elif self.args.rag == 'openai':
             api_key = os.environ.get("OPENAI_API_KEY")
             api_base = os.environ.get("OPENAI_API_BASE")
             return OpenAIEmbeddings(openai_api_key=api_key, openai_api_base=api_base)
+        elif self.args.rag == 'sonar':
+            return SONAR_Embeddings(lan=self.language, device=self.args.device)
         else:
-            raise ValueError("暂不支持的Embedding类型: {}".format(self.args.rag))
+            print("Other HuggingFace embeddings will be used:", self.args.rag)
+            return HuggingFaceEmbeddings(
+                model_name=self.args.rag,
+                model_kwargs={'device': self.args.device},
+                encode_kwargs={'batch_size': 16, 'normalize_embeddings': False}
+            )
     
     def _init_persist_directory(self):
         return f"answer_data/db_{self.args.rag}_oracle"
@@ -89,7 +96,10 @@ class E2E_RAG(RAG):
         super().__init__(args, lan)
 
     def _init_embedding(self):
-        return SONAR_Wav_Embeddings(lan=self.language, device=self.args.device)
+        if hasattr(self.args, "clap") and self.args.clap:      
+            return CLAP_Embeddings(lan=self.language, device=self.args.device)
+        else:
+            return SONAR_Wav_Embeddings(lan=self.language, device=self.args.device)
 
     def _init_persist_directory(self):
         return f"answer_data/db_{self.args.rag}"
@@ -111,6 +121,8 @@ class ASR_RAG(RAG):
             self.asr = FasterWhisper(args)
         elif args.asr_model == "MMS":
             self.asr = MMS(args)
+        elif args.asr_model == "Wav2Vec2":
+            self.asr = Wav2Vec2(args)
         else:
             raise ValueError(f"Unsupported ASR model: {args.asr_model}")
     

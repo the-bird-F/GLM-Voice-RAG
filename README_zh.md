@@ -18,7 +18,7 @@ E2E RAG for GLM-4-Voice: A Case Study
 </p>
 
 <p align="center">
-    <img src="./resources/e2erag.svg" alt="模型结构图" width="600"/>
+    <img src="./resources/e2erag.svg" alt="模型结构图" width="666"/>
 </p>
 
 ---
@@ -54,6 +54,11 @@ E2E RAG for GLM-4-Voice: A Case Study
 在本项目中，SONAR 用于将语音输入映射至文本知识库空间，从而实现跨模态检索增强。
 
 ---
+### 补充：其他语音-文本嵌入器
+
+[CLAP](https://huggingface.co/laion/clap-htsat-unfused) 是 LAION 团队发布的用于音频与文本对齐的多模态对比学习模型，支持将音频和文本映射到同一语义空间。
+
+---
 
 ### 可用的语音识别后端
 
@@ -62,7 +67,7 @@ E2E RAG for GLM-4-Voice: A Case Study
 - Whisper ([openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3))
 - Faster-Whisper ([faster-whisper](https://huggingface.co/guillaumekln/faster-whisper))
 - MMS ([facebook/mms-1b-all](https://huggingface.co/facebook/mms-1b-all))
-
+- Wav2Vec2 ([facebook/wav2vec2-base-960h](https://huggingface.co/facebook/wav2vec2-base-960h))
 ---
 
 
@@ -110,20 +115,28 @@ E2E RAG for GLM-4-Voice: A Case Study
 
 
 ## 📚 数据集
-### HotpotQA
+### HotpotQA & Speech
 ```shell
 git clone https://github.com/hotpotqa/hotpot.git
-```
-
-### RGB
-```shell
-git clone https://github.com/chen700564/RGB.git
-```
-
-### Ours speech dataset
-```shell
 git clone https://huggingface.co/datasets/the-bird-F/HotpotQA_RGBzh_speech
 ```
+
+### RGB & Speech
+```shell
+git clone https://github.com/chen700564/RGB.git
+git clone https://huggingface.co/datasets/the-bird-F/HotpotQA_RGBzh_speech
+```
+
+### Spoken-SQuAD
+```shell
+git clone https://github.com/Chia-Hsuan-Lee/Spoken-SQuAD
+```
+
+### VoxPopuli-QA
+```shell
+git clone https://github.com/facebookresearch/voxpopuli
+```
+
 
 ## 🚀 快速开始
 针对不同的数据集，我们提供了不同的运行脚本，在此可以选择运行 E2E RAG 或 ASR RAG：
@@ -139,7 +152,7 @@ python examples/glm_voice_hotpot.py --rag e2e
 python examples/glm_voice_rgb.py --rag e2e
 ```
 
-另外，我们还提供了双轮生成的检索增强策略，可运行一下脚本：
+另外，我们还提供了双轮生成的检索增强策略，可运行脚本：
 ```shell
 python examples/double_glm_voice_hotpot.py
 ```
