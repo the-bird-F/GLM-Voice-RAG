@@ -71,9 +71,14 @@ E2E RAG for GLM-4-Voice: A Case Study
 ---
 
 
-### 🧪 Qwen-Omni（后续计划）
+### Qwen-Omni ✔️
 
-我们计划后续支持 [Qwen2.5-Omni](https://github.com/QwenLM/Qwen2.5-Omni) 模型，扩展本系统在图像、视频等更多模态下的对话能力。
+我们框架支持 [Qwen2.5-Omni](https://github.com/QwenLM/Qwen2.5-Omni) 模型，可扩展本系统在图像、视频等更多模态下的对话能力。
+```bash
+git clone https://github.com/QwenLM/Qwen2.5-Omni.git
+
+python examples/glm_voice_simple --chatbot qwen-omni
+```
 
 ---
 

@@ -9,14 +9,21 @@ from tqdm import tqdm
 
 from rag_module.e2e_rag import RAG, ASR_RAG, E2E_RAG
 from rag_module.rag_tools import Recorder
-from spoken_chatbot.model import GLM_Voice
+from spoken_chatbot.model import GLM_Voice, Qwen_Omni, Fake
 
 
 def main(args):
     with open(args.data_path, 'r', encoding='utf-8') as f:
         content = f.read()
     input_path = args.input_path
-    spoken_chatbot = GLM_Voice(args)
+    
+    if args.chatbot == "qwen-omni":
+        spoken_chatbot = Qwen_Omni(args)
+    elif args.chatbot == "fake":
+        spoken_chatbot = Fake()
+    elif args.chatbot == "glm-voice":
+        spoken_chatbot = GLM_Voice(args)
+        
     if args.oracle:
         result_dir = f"answer_data/simple_{args.rag}_oracle"
         info_path = f"answer_data/simple_info_{args.rag}_asr.json"
@@ -40,7 +47,6 @@ def main(args):
         
         ######### prepare query #########
         recorder.respond_timer.start()
-        question_audio = spoken_chatbot.process_audio(input_path)
         if not args.oracle:
             query = input_path # speech 
         
@@ -55,13 +61,31 @@ def main(args):
             recorder.retrieval_timer.stop()
                                 
         ######### generation #########
-        prompt_input = f"""Answer the question based on the following context:
-{retrieval_context}
-Question: {question_audio}"""
-        user_input = prompt_input.strip()
-        system_prompt = "User will provide you with a speech instruction. Do it step by step. First, think about the instruction and respond in a interleaved manner, with 13 text token followed by 26 audio tokens. " 
-        prompt = f"<|system|>\n{system_prompt}<|user|>\n{user_input}<|assistant|>streaming_transcription\n"
-        
+        if args.chatbot == "qwen-omni":
+            prompt = [
+                {
+                    "role": "system",
+                    "content": [
+                        {"type": "text", "text": "You are Qwen, a virtual human developed by the Qwen Team, Alibaba Group, capable of perceiving auditory and visual inputs, as well as generating text and speech."},
+                    ],
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": f"Answer the question based on the following context:\n{retrieval_context}\nQuestion:"},
+                        {"type": "audio", "audio": input_path},
+                    ],
+                },
+            ]
+        else:
+            question_audio = spoken_chatbot.process_audio(input_path)
+            system_prompt = "User will provide you with a speech instruction. Do it step by step. First, think about the instruction and respond in a interleaved manner, with 13 text token followed by 26 audio tokens. " 
+            prompt_input = f"""Answer the question based on the following context:
+    {retrieval_context}
+    Question: {question_audio}"""
+            user_input = prompt_input.strip()
+            prompt = f"<|system|>\n{system_prompt}<|user|>\n{user_input}<|assistant|>streaming_transcription\n"
+            
         spoken_chatbot.generate(prompt, args.temperature, output_file=f"{result_dir}")
         recorder.respond_timer.stop()
         recorder.record_info([content], "", retrieval_context)
@@ -88,6 +112,7 @@ if __name__ == "__main__":
     parser.add_argument("--chunk-size", type=int, default=1000)
     parser.add_argument("--chunk-overlap", type=int, default=100)
     
+    parser.add_argument("--chatbot", type=str, choices=["glm-voice", "qwen-omni", "fake"], default="glm-voice")
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--top_p", type=float, default=0.8)
     parser.add_argument("--max_new_token", type=int, default=2000)

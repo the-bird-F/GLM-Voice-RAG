@@ -6,6 +6,8 @@ import sys
 
 sys.path.insert(0, "./cosyvoice")
 sys.path.insert(0, "./third_party/Matcha-TTS")
+src_path = os.path.abspath(os.path.join('./Qwen2.5-Omni/qwen-omni-utils/src'))
+sys.path.append(src_path)
 
 import uuid
 from hyperpyyaml import load_hyperpyyaml
@@ -17,6 +19,9 @@ from faster_whisper import WhisperModel
 from speech_tokenizer.modeling_whisper import WhisperVQEncoder
 from speech_tokenizer.utils import extract_speech_token
 
+# Importing Qwen Omni utilities
+from qwen_omni_utils import process_mm_info
+from transformers import Qwen2_5OmniForConditionalGeneration, Qwen2_5OmniProcessor
 
 class Fake():
     def __init__(self, args):
@@ -323,39 +328,45 @@ class Wav2Vec2:
         return transcription
 
 
-'''
-from transformers import Qwen2_5OmniModel, Qwen2_5OmniProcessor
-from qwen_omni_utils import process_mm_info
-
 
 class Qwen_Omni():
     def __init__(self, args):
-        self.model = Qwen2_5OmniModel.from_pretrained("Qwen/Qwen2.5-Omni-7B", torch_dtype="auto", device_map="auto")
-        self.processor = Qwen2_5OmniProcessor.from_pretrained("Qwen/Qwen2.5-Omni-7B")
+        model_path = args.model_path if hasattr(args, "model_path") else "Qwen/Qwen2.5-Omni-7B"
+        self.model = Qwen2_5OmniForConditionalGeneration.from_pretrained(model_path, torch_dtype="auto", device_map=args.device)
+        self.processor = Qwen2_5OmniProcessor.from_pretrained(model_path)
         self.device = args.device
         self.output = args.output_dir
         
+    def generate(self, prompt, temperature=0.2 ,output_file="output"):
+        voice='Chelsie'
 
-    def generate(self, prompt, text, audios, images, videos):
-        # set use audio in video
-        USE_AUDIO_IN_VIDEO = True
-        # Preparation for inference
         text = self.processor.apply_chat_template(prompt, add_generation_prompt=True, tokenize=False)
-        audios, images, videos = process_mm_info(prompt, use_audio_in_video=USE_AUDIO_IN_VIDEO)
-        
-        inputs = self.processor(text=text, audios=audios, images=images, videos=videos, return_tensors="pt", padding=True)
+        audios, images, videos = process_mm_info(prompt, use_audio_in_video=True)
+
+        inputs = self.processor(
+            text=text,
+            audio=audios,
+            images=images,
+            videos=videos,
+            return_tensors="pt",
+            padding=True,
+            use_audio_in_video=True
+        )
         inputs = inputs.to(self.model.device).to(self.model.dtype)
 
-        # Inference: Generation of the output text and audio
-        text_ids, audio = self.model.generate(**inputs, use_audio_in_video=USE_AUDIO_IN_VIDEO)
-        text = self.processor.batch_decode(text_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)
-        
-        sf.write(
-            os.path.join(self.output,"output.wav"),
-            audio.reshape(-1).detach().cpu().numpy(),
-            samplerate=24000,
-        )
-        
-        return text
-'''
+        text_ids, audio = self.model.generate(**inputs, speaker=voice, use_audio_in_video=True)
 
+        response = self.processor.batch_decode(text_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+        response = response[0].split("\n")[-1]  
+
+        audio = np.array(audio * 32767).astype(np.int16)
+        
+        os.makedirs(output_file, exist_ok=True)
+        text_path = os.path.join(output_file, "output.txt")
+        with open(text_path, "w", encoding="utf-8") as f:
+            f.write(response)
+        
+        audio_path = os.path.join(output_file, "output.wav")
+        sf.write(audio_path, audio, samplerate=24000, format="WAV")
+
+        return response

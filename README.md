@@ -72,9 +72,14 @@ Our system supports multiple ASR (Automatic Speech Recognition) backends, which 
 
 
 
-### 🧪 Qwen-Omni (Planned)
+###  Qwen-Omni ✔️
 
-We plan to explore [Qwen2.5-Omni](https://github.com/QwenLM/Qwen2.5-Omni) for future **multimodal experiments**.
+We support [Qwen2.5-Omni](https://github.com/QwenLM/Qwen2.5-Omni) for **multimodal experiments**.
+```bash
+git clone https://github.com/QwenLM/Qwen2.5-Omni.git
+
+python examples/glm_voice_simple --chatbot qwen-omni
+```
 
 ---
 
